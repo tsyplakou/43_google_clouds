@@ -134,7 +134,7 @@ from fastapi import FastAPI, Depends
 from sqlalchemy.orm import Session
 from database import get_db, Base, engine
 from models import User
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel
 
 app = FastAPI()
 
@@ -148,16 +148,16 @@ def read_root():
 
 class UserCreate(BaseModel):
     name: str
-    email: EmailStr
+    email: str
 
 
 @app.post("/users/")
-def create_user(user:UserCreate, db: Session = Depends(get_db)):
-    user = User(name=name, email=email)
-    db.add(user)
+def create_user(user: UserCreate, db: Session = Depends(get_db)):
+    new_user = User(name=user.name, email=user.email)
+    db.add(new_user)
     db.commit()
-    db.refresh(user)
-    return user
+    db.refresh(new_user)
+    return new_user
 
 @app.get("/users/")
 def get_users(db: Session = Depends(get_db)):
